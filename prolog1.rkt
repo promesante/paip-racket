@@ -53,21 +53,19 @@
 
 ;; Return a 1ist of possible solutions to goal
 (define (prove goal bindings)
-  (my-flatten (filter (lambda (elem)
-                        (not (null? elem)))
-                      (map (lambda (clause)
-                             (let ((new-clause (rename-variables clause)))
-                               (prove-all (clause-body new-clause)
-                                          (unify goal (clause-head new-clause) bindings))))
-                           (get-clauses (predicate goal))))))
+  (append-map (lambda (clause)
+                (let ((new-clause (rename-variables clause)))
+                  (prove-all (clause-body new-clause)
+                             (unify goal (clause-head new-clause) bindings))))
+              (get-clauses (predicate goal))))
 
 ;; Return a list of solutions to the conjunction of goals
 (define (prove-all goals bindings)
   (cond ((equal? bindings fail) fail)
-        ((null? goals) bindings)
-        (else (map (lambda (goal1-solution)
-                     (prove-all (rest goals) goal1-solution))
-                   (prove (first goals) bindings)))))
+        ((null? goals) (list bindings))
+        (else (append-map (lambda (goal1-solution)
+                            (prove-all (rest goals) goal1-solution))
+                          (prove (first goals) bindings)))))
 
 ;; Replace all variables in x with new ones
 (define (rename-variables x)
@@ -115,10 +113,10 @@
   (if (null? vars)
       (displayln "Yes")
       (for ((var vars))
-                (displayln
-                 (string-append
-                  (symbol->string var) " = "
-                  (symbol->string (subst-bindings bindings var)) ";")))))
+        (displayln
+         (string-append
+          (symbol->string var) " = "
+          (symbol->string (subst-bindings bindings var)) ";")))))
 
 (module+ test
   (check-equal? 'Lee (subst-bindings '((?who . Lee)) '?who))
