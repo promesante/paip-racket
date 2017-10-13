@@ -7,7 +7,9 @@ I am performing this port projects of the following chapters of Peter Norvig's c
 * **Chapter 22**: Scheme: An Uncommon Lisp
 * **Chapter 23**: Compiling Lisp
 
-Book's source code is available in the [author's Web site ](http://norvig.com/paip/README.html), and has been taken as this repo's initial version. Common Lisp files to be ported will be:
+Book's source code is available in the [author's Web site ](http://norvig.com/paip/README.html), and has been taken as this repo's initial version.
+
+Common Lisp files to be ported will be:
 
 1. Duplicated
 2. Physically renamed, changing just its extension, from the original `lisp` to Racket's `rkt`
