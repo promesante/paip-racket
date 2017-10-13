@@ -116,3 +116,7 @@
       lst
       (append lst (list item))))
 
+(module+ test
+  (check-equal? '(1 2 3) (adjoin 1 '(1 2 3)))
+  (check-equal? '(1 2 3 4) (adjoin 4 '(1 2 3))))
+

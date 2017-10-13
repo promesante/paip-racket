@@ -103,7 +103,7 @@
 ;; Print the variables in each of the solutions
 (define (show-prolog-solutions vars solutions)
   (if (null? solutions)
-      (format "~%No.")
+      (printf "No~%")
       (map (lambda (solution) (show-prolog-vars vars solution))
            solutions))
   (values))
@@ -111,22 +111,12 @@
 ;; Print each variable with its binding
 (define (show-prolog-vars vars bindings)
   (if (null? vars)
-      (displayln "Yes")
+      (printf "Yes~%")
       (for ((var vars))
-        (displayln
-         (string-append
-          (symbol->string var) " = "
-          (symbol->string (subst-bindings bindings var)) ";")))))
-
-(module+ test
-  (check-equal? 'Lee (subst-bindings '((?who . Lee)) '?who))
-  (check-equal? 'Kim (subst-bindings '((?who . Kim)) '?who))
-  (check-equal? 'Robin (subst-bindings '((?x71156 . Robin) (?who . ?x71156)) '?who))
-  (check-equal? 'Sandy (subst-bindings '((?x71160 . cats) (?x71157 . cats) (?x71156 . Sandy) (?who . ?x71156)) '?who))
-  (check-equal? 'cats (subst-bindings '((?x71169 . cats) (?x71156 . ?x71169) (?who . ?x71156)) '?who))
-  (check-equal? 'Sandy (subst-bindings '((?who . Sandy) (?x71171 . Sandy)) '?who)))
+        (printf "~a = ~a;~%"
+                var
+                (subst-bindings bindings var)))))
 
 ;; Return a list of all the variables in EXP
 (define (variables-in exp)
   (unique-find-anywhere-if variable? exp))
-

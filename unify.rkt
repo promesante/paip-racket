@@ -44,8 +44,7 @@
   (check-equal? '() (unify '?x '(f ?x)))
   (check-equal? '() (unify '(?x ?y) '((f ?y) (f ?x))))
   (check-equal? '() (unify '(?x ?y ?z) '((?y ?z) (?x ?z) (?x ?y))))
-  (check-equal? '((#t . #t)) (unify 'a 'a))
-  )
+  (check-equal? '((#t . #t)) (unify 'a 'a)))
 
 (module+ test
   (test-begin
@@ -109,5 +108,4 @@
                                                        '(?z + (4 * 5) + 3)))
   (check-equal? '(a a a) (unifier '(?x ?y a) '(?y ?x ?x)))
   (check-equal? '(a a a) (unifier '(?x ?y a) '(?y ?x ?x)))
-  (check-equal? '(a a a) (unifier '(?x ?y a) '(?y ?x ?x)))
-  )
+  (check-equal? '(a a a) (unifier '(?x ?y a) '(?y ?x ?x))))
