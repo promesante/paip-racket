@@ -318,9 +318,6 @@
 
 (defun extend-bindings (var val bindings)
   "Add a (var . value) pair to a binding list."
-  ; (format t "extend-bindings - var: ~a~%" var)
-  ; (format t "extend-bindings - val: ~a~%" val)
-  ; (format t "extend-bindings - bindings: ~a~%" bindings)
   (cons (cons var val)
         ;; Once we add a "real" binding,
         ;; we can get rid of the dummy no-bindings

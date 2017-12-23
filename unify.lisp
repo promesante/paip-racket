@@ -10,9 +10,6 @@
 
 (defun unify (x y &optional (bindings no-bindings))
   "See if x and y match with given bindings."
-  (format t "unify - x: ~a~%" x)
-  (format t "unify - y: ~a~%" y)
-  (format t "unify - bindings: ~a~%" bindings)
   (cond ((eq bindings fail) fail)
         ((eql x y) bindings)
         ((variable-p x) (unify-variable x y bindings))
@@ -24,9 +21,6 @@
 
 (defun unify-variable (var x bindings)
   "Unify var with x, using (and maybe extending) bindings."
-  (format t "unify-variable - var: ~a~%" var)
-  (format t "unify-variable - x: ~a~%" x)
-  (format t "unify-variable - bindings: ~a~%" bindings)
   (cond ((get-binding var bindings)
          (unify (lookup var bindings) x bindings))
         ((and (variable-p x) (get-binding x bindings))

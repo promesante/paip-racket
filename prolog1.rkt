@@ -51,22 +51,6 @@
 (define (clear-predicate predicate)
   (hash-remove! db-predicates predicate))
 
-;; Return a 1ist of possible solutions to goal
-(define (prove goal bindings)
-  (append-map (lambda (clause)
-                (let ((new-clause (rename-variables clause)))
-                  (prove-all (clause-body new-clause)
-                             (unify goal (clause-head new-clause) bindings))))
-              (get-clauses (predicate goal))))
-
-;; Return a list of solutions to the conjunction of goals
-(define (prove-all goals bindings)
-  (cond ((equal? bindings fail) fail)
-        ((null? goals) (list bindings))
-        (else (append-map (lambda (goal1-solution)
-                            (prove-all (rest goals) goal1-solution))
-                          (prove (first goals) bindings)))))
-
 ;; Replace all variables in x with new ones
 (define (rename-variables x)
   (sublis (map (lambda (var) (cons var (gensym (symbol->string var))))
@@ -93,6 +77,22 @@
 
 (define-syntax-rule (?- goal1 ...)
   (top-level-prove (list 'goal1 ...)))
+
+;; Return a list of solutions to the conjunction of goals
+(define (prove-all goals bindings)
+  (cond ((equal? bindings fail) fail)
+        ((null? goals) (list bindings))
+        (else (append-map (lambda (goal1-solution)
+                            (prove-all (rest goals) goal1-solution))
+                          (prove (first goals) bindings)))))
+
+;; Return a 1ist of possible solutions to goal
+(define (prove goal bindings)
+  (append-map (lambda (clause)
+                (let ((new-clause (rename-variables clause)))
+                  (prove-all (clause-body new-clause)
+                             (unify goal (clause-head new-clause) bindings))))
+              (get-clauses (predicate goal))))
 
 ;; Prove the goals, and print variables readably
 (define (top-level-prove goals)

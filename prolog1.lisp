@@ -41,8 +41,6 @@
 
 (defun prove (goal bindings)
   "Return a list of possible solutions to goal."  
-  (format t "prove - goal: ~a~%" goal)
-  (format t "prove - bindings: ~a~%" bindings)
   (mapcan #'(lambda (clause)
               (let ((new-clause (rename-variables clause)))
                 (prove-all (clause-body new-clause)
@@ -51,8 +49,6 @@
 
 (defun prove-all (goals bindings)
   "Return a list of solutions to the conjunction of goals."
-  (format t "prove-all - goals: ~a~%" goals)
-  (format t "prove-all - bindings: ~a~%" bindings)
   (cond ((eq bindings fail) fail)
         ((null goals) (list bindings))
         (t (mapcan #'(lambda (goal1-solution)
@@ -61,7 +57,6 @@
 
 (defun rename-variables (x)
   "Replace all variables in x with new ones."
-  (format t "rename-variables - x: ~a~%" x)
   (sublis (mapcar #'(lambda (var) (cons var (gensym (string var))))
                   (variables-in x))
           x))

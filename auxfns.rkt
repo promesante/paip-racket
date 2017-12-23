@@ -1,9 +1,8 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp -*-
-;;; Code from Paradigms of AI Programming
-;;; Copyright (c) 1991 Peter Norvig
+;;;; -*- Mode: Lisp; Syntax: Common-Lisp -*-
+;;;; Code from Paradigms of AI Programming
+;;;; Copyright (c) 1991 Peter Norvig
 
-;;; File auxfns.lisp: Auxiliary functions used by all other programs
-;;; Load this file before running any other programs.
+;;;; File prolog1.lisp: First version of the prolog interpreter (11.2).
 
 #lang racket
 
@@ -16,14 +15,13 @@
          fail
          get-binding
          lookup
-         my-flatten
          no-bindings
          reuse-cons
          sublis
          variable?)
 
 ;; Indicates pat-match failure
-(define fail null)
+(define fail #f)
 
 ;; Indicates pat-match success, with no variables
 (define no-bindings '((#t . #t)))
@@ -45,7 +43,7 @@
   (cons (cons var val)
         ;; Once we add a "real" binding,
         ;; we can get rid of the dummy no-bindings
-        (if (equal? bindings no-bindings)
+        (if (eq? bindings no-bindings)
             null
             bindings)))
 
@@ -61,55 +59,31 @@
 
 ;; Racket implementation's specific functions
 
-; Hack in order to flat as a list the result I get as a tree
-(define (my-flatten lst)
-  (if (null? lst)
-      null
-      (filter (lambda (elem) (not (null? elem)))
-              (append
-               (append-map my-flatten (filter list? lst))
-               (list (filter (lambda (elem)
-                               (and (not (list? elem)) (cons? elem)))
-                             lst))))))
-
-(module+ test
-  (check-equal?
-   '(((?x20483 . Robin) (?who . ?x20483))
-     ((?x20493 . cats) (?x20487 . cats) (?x20483 . Sandy) (?who . ?x20483))
-     ((?x20501 . cats) (?x20483 . ?x20501) (?who . ?x20483)))
-   (my-flatten '(((?x20483 . Robin) (?who . ?x20483))
-                 (((?x20493 . cats) (?x20487 . cats) (?x20483 . Sandy) (?who . ?x20483)))
-                 ((?x20501 . cats) (?x20483 . ?x20501) (?who . ?x20483)))))
-  (check-equal?
-   '(((?who . Lee))
-     ((?who . Kim))
-     ((?x20483 . Robin) (?who . ?x20483))
-     ((?x20493 . cats) (?x20487 . cats) (?x20483 . Sandy) (?who . ?x20483))
-     ((?x20501 . cats) (?x20483 . ?x20501) (?who . ?x20483))
-     ((?who . Sandy) (?x20503 . Sandy)))
-   (my-flatten '(((?who . Lee))
-                 ((?who . Kim))
-                 (((?x20483 . Robin) (?who . ?x20483))
-                  (((?x20493 . cats) (?x20487 . cats) (?x20483 . Sandy) (?who . ?x20483)))
-                  ((?x20501 . cats) (?x20483 . ?x20501) (?who . ?x20483)))
-                 ((?who . Sandy) (?x20503 . Sandy))))))
-
 (define (sublis pairs lst)
   (map (lambda (elem)
-         (if (list? elem)
-             (sublis pairs elem)
-             (let ((mem-pairs (memf (lambda (pair)
-                                      (equal? elem (car pair)))
-                                    pairs)))
-               (if (not mem-pairs)
-                   elem
-                   (cdr (car mem-pairs))))))
-         lst))
+         (process pairs elem))
+       lst))
 
 (module+ test
   (check-equal? '((likes ?x113409 ?x113409)) (sublis '((?x . ?x113409)) '((likes ?x ?x))))
   (check-equal? '((likes Sandy ?x113399) (likes ?x113399 cats)) (sublis '((?x . ?x113399)) '((likes Sandy ?x) (likes ?x cats))))
   (check-equal? '((likes Kim ?x113405) (likes ?x113405 Lee) (likes ?x113405 Kim)) (sublis '((?x . ?x113405)) '((likes Kim ?x) (likes ?x Lee) (likes ?x Kim)))))
+
+(define (subpair pairs pair)
+  (cons (process pairs (car pair)) (process pairs (cdr pair))))
+
+(define (subelem pairs elem)
+  (let ((mem-pairs (memf (lambda (pair)
+                           (equal? elem (car pair)))
+                         pairs)))
+    (if (not mem-pairs)
+        elem
+        (cdr (car mem-pairs)))))
+
+(define (process pairs elem)
+  (cond ((list? elem) (sublis pairs elem))
+        ((pair? elem) (subpair pairs elem))
+        (else (subelem pairs elem))))
 
 (define (adjoin item lst)
   (if (member item lst)

@@ -22,13 +22,13 @@
 
 ;; See if x and y match with given bindings
 (define (unify x y [bindings no-bindings])
-  (cond ((equal? bindings fail) fail)
+  (cond ((eq? bindings fail) fail)
         ((equal? x y) bindings)
         ((variable? x) (unify-variable x y bindings))
         ((variable? y) (unify-variable y x bindings))
         ((and (cons? x) (cons? y))
-         (unify (rest x) (rest y)
-                (unify (first x) (first y) bindings)))
+         (unify (cdr x) (cdr y)
+                (unify (car x) (car y) bindings)))
         (else fail)))
 
 (module+ test
@@ -41,9 +41,9 @@
   (check-equal? '((?y . a) (?x . ?y)) (unify '(?x ?y a) '(?y ?x ?x)))
   (check-equal? '((?y . a) (?x . ?y)) (unify '(?x ?y a) '(?y ?x ?x)))
   (check-equal? '((?y . a) (?x . ?y)) (unify '(?x ?y a) '(?y ?x ?x)))
-  (check-equal? '() (unify '?x '(f ?x)))
-  (check-equal? '() (unify '(?x ?y) '((f ?y) (f ?x))))
-  (check-equal? '() (unify '(?x ?y ?z) '((?y ?z) (?x ?z) (?x ?y))))
+  (check-equal? #f (unify '?x '(f ?x)))
+  (check-equal? #f (unify '(?x ?y) '((f ?y) (f ?x))))
+  (check-equal? #f (unify '(?x ?y ?z) '((?y ?z) (?x ?z) (?x ?y))))
   (check-equal? '((#t . #t)) (unify 'a 'a)))
 
 (module+ test
@@ -69,8 +69,8 @@
   (cond ((equal? var x) #t)
         ((and (variable? x) (get-binding x bindings))
          (occurs-check var (lookup x bindings) bindings))
-        ((cons? x) (or (occurs-check var (first x) bindings)
-                       (occurs-check var (rest x) bindings)))
+        ((cons? x) (or (occurs-check var (car x) bindings)
+                       (occurs-check var (cdr x) bindings)))
         (else #f)))
 
 ;;; ==============================
