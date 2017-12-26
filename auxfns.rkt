@@ -69,6 +69,11 @@
   (check-equal? '((likes Sandy ?x113399) (likes ?x113399 cats)) (sublis '((?x . ?x113399)) '((likes Sandy ?x) (likes ?x cats))))
   (check-equal? '((likes Kim ?x113405) (likes ?x113405 Lee) (likes ?x113405 Kim)) (sublis '((?x . ?x113405)) '((likes Kim ?x) (likes ?x Lee) (likes ?x Kim)))))
 
+(define (process pairs elem)
+  (cond ((list? elem) (sublis pairs elem))
+        ((pair? elem) (subpair pairs elem))
+        (else (subelem pairs elem))))
+
 (define (subpair pairs pair)
   (cons (process pairs (car pair)) (process pairs (cdr pair))))
 
@@ -79,11 +84,6 @@
     (if (not mem-pairs)
         elem
         (cdr (car mem-pairs)))))
-
-(define (process pairs elem)
-  (cond ((list? elem) (sublis pairs elem))
-        ((pair? elem) (subpair pairs elem))
-        (else (subelem pairs elem))))
 
 (define (adjoin item lst)
   (if (member item lst)
